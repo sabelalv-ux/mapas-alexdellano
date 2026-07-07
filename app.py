@@ -90,29 +90,23 @@ if boton_generar and archivo_subido and nombre_jugador:
             pitch.arrows(pases_fallo['x'], pases_fallo['y'], pases_fallo['endX'], pases_fallo['endY'], color='#ff007f', width=1.5, ax=axs[0], zorder=3)
             pitch.scatter(pases['x'], pases['y'], color='#ff007f', edgecolors='white', s=30, ax=axs[0], zorder=4)
 
-            # PANEL 2: ACCIONES DEFENSIVAS Y OFENSIVAS (Con sistema anti-caídas)
+            # PANEL 2: ACCIONES DEFENSIVAS Y OFENSIVAS
             defensivas = df_player[df_player['type_name'].isin(['Tackle', 'Interception', 'Clearance', 'BallRecovery'])]
             ofensivas = df_player[(df_player['type_name'].isin(['TakeOn', 'FoulGiven'])) | ((df_player['type_name'] == 'Pass') & (df_player['x'] > 50))]
 
-            # Intentar dibujar el polígono defensivo (DF)
             if len(defensivas) >= 3:
                 try:
                     pitch.convex_hull(defensivas['x'], defensivas['y'], ax=axs[1], facecolor='#0077b6', alpha=0.4, edgecolor='#00b4d8', linewidth=2)
                 except Exception:
-                    pass # Si hay un error matemático con el polígono, no hace nada y continúa
-            
-            # Pintar los puntos defensivos siempre que haya al menos uno
+                    pass
             if len(defensivas) > 0:
                 pitch.scatter(defensivas['x'], defensivas['y'], color='#00b4d8', s=40, ax=axs[1], zorder=3)
             
-            # Intentar dibujar el polígono ofensivo (OF)
             if len(ofensivas) >= 3:
                 try:
                     pitch.convex_hull(ofensivas['x'], ofensivas['y'], ax=axs[1], facecolor='#38b000', alpha=0.4, edgecolor='#70e000', linewidth=2)
                 except Exception:
                     pass
-            
-            # Pintar los puntos ofensivos siempre que haya al menos uno
             if len(ofensivas) > 0:
                 pitch.scatter(ofensivas['x'], ofensivas['y'], color='#70e000', s=40, ax=axs[1], zorder=3)
 
@@ -128,13 +122,10 @@ if boton_generar and archivo_subido and nombre_jugador:
             axs[2].text(50, 52, f"{goles}\nGoals", color='white', fontsize=20, ha='center', va='center', weight='bold')
             axs[2].text(50, 42, f"{len(tiros)}\nShots", color='grey', fontsize=16, ha='center', va='center')
 
-            # Textos inferiores
+            # Textos inferiores y estadísticas
             plt.suptitle(f"{nombre_jugador} - Match Performance", color='white', fontsize=22, weight='bold', y=0.98)
             stats_left = f"Total Passes: {pases_completados}/{total_pases} ({porcentaje:.1f}%)\n"
             stats_center = f"Tackles: {len(df_player[df_player['type_name'] == 'Tackle'])}   Ball Recovery: {len(df_player[df_player['type_name'] == 'BallRecovery'])}"
             
-            fig.text(0.05, 0.02, stats_left, color='grey', fontsize=11, ha='left')
-            fig.text(0.38, 0.02, stats_center, color='grey', fontsize=11, ha='left')
-
-            # Mostrar gráfico en Streamlit
-            st.pyplot(fig, facecolor=BACKGROUND_COLOR)
+            # --- MARCA DE AGUA (AQUÍ SE INCLUYE TU NOMBRE) ---
+            stats_

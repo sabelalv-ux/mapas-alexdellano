@@ -126,6 +126,11 @@ if boton_generar and archivo_subido and nombre_jugador:
             plt.suptitle(f"{nombre_jugador} - Match Performance", color='white', fontsize=22, weight='bold', y=0.98)
             stats_left = f"Total Passes: {pases_completados}/{total_pases} ({porcentaje:.1f}%)\n"
             stats_center = f"Tackles: {len(df_player[df_player['type_name'] == 'Tackle'])}   Ball Recovery: {len(df_player[df_player['type_name'] == 'BallRecovery'])}"
+            stats_right = "Data Source: WhoScored\nVisualización por: @alexdellano"
             
-            # --- MARCA DE AGUA (AQUÍ SE INCLUYE TU NOMBRE) ---
-            stats_
+            fig.text(0.05, 0.02, stats_left, color='grey', fontsize=11, ha='left')
+            fig.text(0.38, 0.02, stats_center, color='grey', fontsize=11, ha='left')
+            fig.text(0.72, 0.02, stats_right, color='#8a9aad', fontsize=11, ha='left', weight='bold')
+
+            # Mostrar gráfico en Streamlit
+            st.pyplot(fig, facecolor=BACKGROUND_COLOR)

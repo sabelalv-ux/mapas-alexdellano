@@ -1,136 +1,96 @@
+import streamlit as st
+import re
+import json
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import urllib.request
+from mplsoccer import VerticalPitch
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no"
-    />
-    <meta name="theme-color" content="#FFFFFF" />
-    <!-- Additional meta tags -->
+# --- CONFIGURACIÓN DE LA PÁGINA (ESTILO OSCURO POR DEFECTO) ---
+st.set_page_config(page_title="Analizador Pro - @alexdellano", layout="wide")
 
-    <!--
-      We're putting icons here because ReactHelmet doesn't work for favicons.
-      See https://github.com/nfl/react-helmet/issues/430
-    -->
+# Forzar algunos estilos CSS para clonar la apariencia oscura y los botones de la barra lateral de per-90
+st.markdown("""
+    <style>
+    /* Estilos para los botones del menú lateral */
+    div.stButton > button:first-child {
+        width: 100%;
+        background-color: #1e1e24;
+        color: #ffffff;
+        border: 1px solid #3a3a42;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin-bottom: 0.2rem;
+        text-align: center;
+    }
+    div.stButton > button:first-child:hover {
+        border-color: #ff4d6d;
+        color: #ff4d6d;
+    }
+    </style>
+""", unsafe_scale=True, unsafe_allow_html=True)
 
-    <!--
-    Following a mix of:
-    - https://medium.com/swlh/are-you-using-svg-favicons-yet-a-guide-for-modern-browsers-836a6aace3df
-    - https://css-tricks.com/svg-favicons-and-all-the-fun-things-we-can-do-with-them/
-    -->
-    <link id="favicon" rel="icon" href="/-/build/favicon.svg" />
-    <!--
-    Including all these other <link> statements here just so they're all in the same place.
-    Not because we expect someone to Helmet-override them.
-    -->
-    <link id="alternate-favicon" rel="alternate icon" href="/-/build/favicon.ico" />
-    <link rel="mask-icon" href="/favicon_safari_mask.png" color="#FF2B2B" />
-    <link rel="apple-touch-icon" href="/-/build/favicon_256.png" />
-    <link rel="manifest" href="/-/build/manifest.json" />
-    <!-- Google Tag Manager -->
-    <script>
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-          "gtm.start": new Date().getTime(),
-          event: "gtm.js",
-        });
-        var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s),
-          dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
-      })(window, document, "script", "dataLayer", "GTM-52GRQSL");
-    </script>
-    <!-- End Google Tag Manager -->
-    <!-- Segment -->
-    <script>
-      !(function () {
-        var analytics = (window.analytics = window.analytics || []);
-        if (!analytics.initialize)
-          if (analytics.invoked)
-            window.console && console.error && console.error("Segment snippet included twice.");
-          else {
-            analytics.invoked = !0;
-            analytics.methods = [
-              "trackSubmit",
-              "trackClick",
-              "trackLink",
-              "trackForm",
-              "pageview",
-              "identify",
-              "reset",
-              "group",
-              "track",
-              "ready",
-              "alias",
-              "debug",
-              "page",
-              "once",
-              "off",
-              "on",
-              "addSourceMiddleware",
-              "addIntegrationMiddleware",
-              "setAnonymousId",
-              "addDestinationMiddleware",
-            ];
-            analytics.factory = function (e) {
-              return function () {
-                var t = Array.prototype.slice.call(arguments);
-                t.unshift(e);
-                analytics.push(t);
-                return analytics;
-              };
-            };
-            for (var e = 0; e < analytics.methods.length; e++) {
-              var key = analytics.methods[e];
-              analytics[key] = analytics.factory(key);
-            }
-            analytics.load = function (key, e) {
-              var t = document.createElement("script");
-              t.type = "text/javascript";
-              t.async = !0;
-              t.src = "https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";
-              var n = document.getElementsByTagName("script")[0];
-              n.parentNode.insertBefore(t, n);
-              analytics._loadOptions = e;
-            };
-            analytics.SNIPPET_VERSION = "4.13.1";
-            analytics.load("GI7vYWHNmWwHbyFjBrvL0jOBA1TpZOXC");
-            // analytics.page()
-          }
-      })();
-    </script>
-    <!-- End Segment -->
-    <script type="module" crossorigin src="/-/build/assets/index-CrJ24j3v.js"></script>
-    <link rel="modulepreload" crossorigin href="/-/build/assets/routes-TnW3pb0o.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/schemas-BTzVsKKo.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/bufferedData-DvBYs6Jx.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/useFeatureFlagEnabled-BElaET-P.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/formatDistanceToNow-llnkFTBE.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/page-KPvQQtaJ.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/confirmationModal-XyeXiuOi.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/index.module-BK3Nk6qf.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/toFinite-yTm5B4sB.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/emoji_u1f626-leAGsBgl.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/errorDetails-_c_mnFRD.js">
-    <link rel="modulepreload" crossorigin href="/-/build/assets/errorPage-D32RJq7f.js">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/schemas-CNmlmbri.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/useFeatureFlagEnabled-DggRfsTF.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/page-CMqMcZ9S.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/confirmationModal-BwNoJBuP.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/errorDetails-BDQowOym.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/errorPage-CK-Jpwy3.css">
-    <link rel="stylesheet" crossorigin href="/-/build/assets/index-CscMcP42.css">
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+# --- PANEL LATERAL (MENÚ DE NAVEGACIÓN ESTILO PER-90) ---
+with st.sidebar:
+    st.button("Home")
+    st.button("Pizza Chart")
+    st.button("Player Stats")
+    st.button("Radar Comparison")
+    st.button("Scatter Plot")
+    st.button("Table")
+    st.button("Stat Filters")
+    st.button("Similarity Score")
+    st.button("Role Rankings")
+    st.button("Event Data")
+    st.button("Match Reports")
 
-    <!-- Status page embed -->
-    <script src="https://www.streamlitstatus.com/embed/script.js"></script>
-  </body>
-</html>
+# --- FUNCIONES DE PROCESAMIENTO DE DATOS ---
+def extraer_json_de_whoscored(html_content):
+    match = re.search(r'matchCentreData:\s*(\{.*\}),\s*\n', html_content)
+    if not match:
+        return None
+    return json.loads(match.group(1))
+
+def obtener_lista_jugadores(data):
+    jugadores = []
+    for team in ['home', 'away']:
+        for p in data[team]['players']:
+            jugadores.append(p['name'])
+    return sorted(jugadores)
+
+def procesar_datos(data, nombre_jugador):
+    jugadores_dict = {}
+    id_a_equipo = {}
+    
+    for team in ['home', 'away']:
+        team_name = data[team]['name']
+        for p in data[team]['players']:
+            jugadores_dict[p['playerId']] = p['name']
+            id_a_equipo[p['playerId']] = team_name
+            
+    events = data['events']
+    df = pd.DataFrame(events)
+    df['playerName'] = df['playerId'].map(jugadores_dict)
+    df['teamName'] = df['playerId'].map(id_a_equipo)
+    
+    df_player = df[df['playerName'] == nombre_jugador].copy()
+    if df_player.empty:
+        return None, None
+        
+    df_player['type_name'] = df_player['type'].apply(lambda x: x.get('displayName', ''))
+    df_player['outcome_name'] = df_player['outcomeType'].apply(lambda x: x.get('displayName', ''))
+    df_player['tags'] = df_player['qualifiers'].apply(lambda x: [q.get('type', {}).get('displayName', '') for q in x] if isinstance(x, list) else [])
+    
+    equipo_jugador = df_player['teamName'].iloc[0]
+    return df_player, equipo_jugador
+
+def obtener_escudo_pais(nombre_pais):
+    try:
+        codigo_pais = "es"
+        p_low = nombre_pais.lower()
+        if "portugal" in p_low: codigo_pais = "pt"
+        elif "argentina" in p_low: codigo_pais = "ar"
+        elif "france" in p_low or "francia" in p_low: codigo_pais = "fr"
+        elif "brazil" in p_low or "brasil" in p_low: codigo_pais = "br"
+        elif "germany" in p_low or "alemania" in p_low

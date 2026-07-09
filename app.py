@@ -29,21 +29,21 @@ st.markdown("""
         color: #ff4d6d;
     }
     </style>
-""", unsafe_scale=True, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # --- PANEL LATERAL (MENÚ DE NAVEGACIÓN ESTILO PER-90) ---
 with st.sidebar:
-    st.button("Home")
-    st.button("Pizza Chart")
-    st.button("Player Stats")
-    st.button("Radar Comparison")
-    st.button("Scatter Plot")
-    st.button("Table")
-    st.button("Stat Filters")
-    st.button("Similarity Score")
-    st.button("Role Rankings")
-    st.button("Event Data")
-    st.button("Match Reports")
+    st.button("Inicio")
+    st.button("Gráfico de tarta (Pizza)")
+    st.button("Estadísticas de Jugador")
+    st.button("Comparativa de Radares")
+    st.button("Gráfico de Dispersión (Scatter)")
+    st.button("Tabla de Datos")
+    st.button("Filtros de Estadísticas")
+    st.button("Puntuación de Similitud")
+    st.button("Clasificación por Rol")
+    st.button("Datos de Eventos")
+    st.button("Informes de Partido")
 
 # --- FUNCIONES DE PROCESAMIENTO DE DATOS ---
 def extraer_json_de_whoscored(html_content):
@@ -90,7 +90,4 @@ def obtener_escudo_pais(nombre_pais):
         codigo_pais = "es"
         p_low = nombre_pais.lower()
         if "portugal" in p_low: codigo_pais = "pt"
-        elif "argentina" in p_low: codigo_pais = "ar"
-        elif "france" in p_low or "francia" in p_low: codigo_pais = "fr"
-        elif "brazil" in p_low or "brasil" in p_low: codigo_pais = "br"
-        elif "germany" in p_low or "alemania" in p_low
+        elif "argentina" in p_low
